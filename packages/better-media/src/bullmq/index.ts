@@ -7,7 +7,10 @@ import {
 } from 'bullmq'
 import type { EnqueueOptions, Queue } from '../queue/types'
 
-const requireShim = createRequire(import.meta.url)
+declare const __filename: string | undefined
+const requireShim = createRequire(
+  typeof __filename !== 'undefined' ? __filename : import.meta.url,
+)
 
 export interface BullmqDefaultJobOptions {
   attempts?: number

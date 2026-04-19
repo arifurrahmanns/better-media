@@ -5,7 +5,10 @@ import { dirname, relative, resolve } from 'node:path'
 import type prompts from 'prompts'
 import { sqlMigrationTemplate } from './templates.js'
 
-const requireShim = createRequire(import.meta.url)
+declare const __filename: string | undefined
+const requireShim = createRequire(
+  typeof __filename !== 'undefined' ? __filename : import.meta.url,
+)
 type PromptsFn = typeof prompts
 
 type DbChoice = 'sqlite' | 'postgres' | 'mysql' | 'mongodb' | 'custom'

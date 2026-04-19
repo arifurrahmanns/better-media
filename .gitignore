@@ -9,3 +9,4 @@ coverage/
 *.tsbuildinfo
 storage/
 .turbo/
+*.tgz

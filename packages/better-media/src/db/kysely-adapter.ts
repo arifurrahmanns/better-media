@@ -1,7 +1,10 @@
 import { createRequire } from 'node:module'
 import { Kysely, MysqlDialect, PostgresDialect, SqliteDialect, sql } from 'kysely'
 
-const requireShim = createRequire(import.meta.url)
+declare const __filename: string | undefined
+const requireShim = createRequire(
+  typeof __filename !== 'undefined' ? __filename : import.meta.url,
+)
 
 function tryRequire(id: string): any | null {
   try {

@@ -2,7 +2,10 @@ import { createRequire } from 'node:module'
 import type { DatabaseAdapter } from '../db/types'
 import type { MediaRecord } from '../types'
 
-const requireShim = createRequire(import.meta.url)
+declare const __filename: string | undefined
+const requireShim = createRequire(
+  typeof __filename !== 'undefined' ? __filename : import.meta.url,
+)
 
 export interface MongooseAdapterOptions {
   /** MongoDB connection URI. If provided, the adapter connects lazily on first use. */
