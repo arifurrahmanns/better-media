@@ -9,30 +9,7 @@ Sending every upload through your Node process works fine for small files, but i
 
 ## The flow
 
-```
-Browser               Your backend                 R2 / S3                    BullMQ worker
-   │                      │                           │                            │
-   │ 1. POST /presign-url │                           │                            │
-   │ ────────────────────>│  media.presignUpload()    │                            │
-   │                      │  → reserves DB row        │                            │
-   │                      │    status='pending'       │                            │
-   │                      │  → signs PUT URL          │                            │
-   │ <── { uuid, url } ───│                           │                            │
-   │                      │                           │                            │
-   │ 2. PUT <url> ────────────────────────────────────>│  stores object            │
-   │ <── 200 OK ──────────────────────────────────────│                            │
-   │                      │                           │                            │
-   │ 3. POST /confirm     │                           │                            │
-   │ ────────────────────>│  media.confirmUpload()    │                            │
-   │                      │  → verify object exists   │                            │
-   │                      │  → sniff real mime type   │                            │
-   │                      │  → re-validate size/mime  │                            │
-   │                      │  → status='ready'         │                            │
-   │                      │  → enqueue conversions ───────────────────────────────>│
-   │ <── MediaRecord ─────│                           │                            │
-   │                      │                           │          download ────────>│  Sharp runs,
-   │                      │                           │          upload variants <─│  updates DB row
-```
+<UploadFlow />
 
 ## Server: two routes, ~10 lines
 

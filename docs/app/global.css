@@ -50,100 +50,50 @@ kbd {
   font-feature-settings: 'zero', 'ss01';
 }
 
-/* ─────────────── Aurora hero background ─────────────── */
+/* ─────────────── Brand blob ─────────────── */
+/* Single large warm-gradient blob. The gradient center is a pair of CSS
+ * variables registered via `@property` so they can interpolate smoothly —
+ * setting them from JS (HeroBlob) "aims" the light at the cursor without
+ * respawning any DOM nodes. Works as a static backdrop too (defaults 50%/35%). */
 
-.aurora {
+@property --blob-x {
+  syntax: '<percentage>';
+  initial-value: 50%;
+  inherits: false;
+}
+@property --blob-y {
+  syntax: '<percentage>';
+  initial-value: 35%;
+  inherits: false;
+}
+
+.brand-blob {
   position: absolute;
-  inset: 0;
-  overflow: hidden;
+  inset: -15%;
   pointer-events: none;
-  z-index: 0;
-}
-
-.aurora::before,
-.aurora::after {
-  content: '';
-  position: absolute;
-  width: 60%;
-  height: 100%;
-  border-radius: 9999px;
-  filter: blur(80px);
-  opacity: 0.55;
+  background: radial-gradient(
+    ellipse 55% 70% at var(--blob-x) var(--blob-y),
+    color-mix(in oklch, var(--brand-aurora-a) 90%, transparent) 0%,
+    color-mix(in oklch, var(--brand-aurora-c) 55%, transparent) 28%,
+    color-mix(in oklch, var(--brand-aurora-b) 28%, transparent) 45%,
+    transparent 62%
+  );
+  transition:
+    --blob-x 700ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    --blob-y 700ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  filter: blur(42px);
+  opacity: 0.72;
   mix-blend-mode: screen;
-  will-change: transform;
+  will-change: background;
 }
 
-.aurora::before {
-  top: -20%;
-  left: -10%;
-  background: radial-gradient(
-    circle,
-    color-mix(in oklch, var(--brand-aurora-a) 90%, transparent),
-    transparent 70%
-  );
-  animation: aurora-a 22s ease-in-out infinite;
-}
-
-.aurora::after {
-  top: -10%;
-  right: -15%;
-  background: radial-gradient(
-    circle,
-    color-mix(in oklch, var(--brand-aurora-b) 85%, transparent),
-    transparent 70%
-  );
-  animation: aurora-b 26s ease-in-out infinite;
-  animation-delay: -10s;
-}
-
-.aurora-blob {
-  position: absolute;
-  top: 10%;
-  left: 30%;
-  width: 40%;
-  height: 70%;
-  border-radius: 9999px;
-  background: radial-gradient(
-    circle,
-    color-mix(in oklch, var(--brand-aurora-c) 80%, transparent),
-    transparent 70%
-  );
-  filter: blur(90px);
+.dark .brand-blob {
   opacity: 0.55;
-  mix-blend-mode: screen;
-  animation: aurora-c 30s ease-in-out infinite;
-  animation-delay: -5s;
-  will-change: transform;
-}
-
-.dark .aurora::before {
-  opacity: 0.45;
-}
-.dark .aurora::after {
-  opacity: 0.4;
-}
-.dark .aurora-blob {
-  opacity: 0.35;
-}
-
-@keyframes aurora-a {
-  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-  50%      { transform: translate3d(15%, 8%, 0) scale(1.15); }
-}
-@keyframes aurora-b {
-  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-  50%      { transform: translate3d(-20%, 10%, 0) scale(1.1); }
-}
-@keyframes aurora-c {
-  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-  50%      { transform: translate3d(10%, -15%, 0) scale(0.95); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .aurora::before,
-  .aurora::after,
-  .aurora-blob {
-    animation: none;
+  .brand-blob {
+    transition: none;
   }
 }
 
@@ -237,6 +187,150 @@ kbd {
 
 .fade-up {
   animation: fade-up 0.7s ease-out both;
+}
+
+/* ─────────────── Futuristic utilities ─────────────── */
+
+/* Marquee — infinite horizontal scroll */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.marquee {
+  animation: marquee 40s linear infinite;
+}
+.marquee-mask {
+  mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+}
+
+/* Gradient text — static warm brand gradient */
+.text-brand-gradient {
+  background: linear-gradient(
+    120deg,
+    oklch(0.82 0.18 80),
+    oklch(0.72 0.22 50),
+    oklch(0.75 0.22 25)
+  );
+  -webkit-background-clip: text;
+          background-clip: text;
+  color: transparent;
+  background-size: 200% 100%;
+  animation: text-shine 8s ease-in-out infinite;
+}
+
+@keyframes text-shine {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+
+/* Corner HUD brackets — small angled marks in hero corners */
+.corner-bracket {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-color: color-mix(in oklch, var(--color-fd-foreground) 15%, transparent);
+  pointer-events: none;
+}
+.corner-bracket.tl { top: 16px; left: 16px; border-top: 1px solid; border-left: 1px solid; }
+.corner-bracket.tr { top: 16px; right: 16px; border-top: 1px solid; border-right: 1px solid; }
+.corner-bracket.bl { bottom: 16px; left: 16px; border-bottom: 1px solid; border-left: 1px solid; }
+.corner-bracket.br { bottom: 16px; right: 16px; border-bottom: 1px solid; border-right: 1px solid; }
+
+/* Animated grid with a slow pulse */
+.grid-animated {
+  background-image:
+    linear-gradient(to right, color-mix(in oklch, currentColor 6%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklch, currentColor 6%, transparent) 1px, transparent 1px);
+  background-size: 48px 48px;
+  animation: grid-pulse 8s ease-in-out infinite;
+}
+
+@keyframes grid-pulse {
+  0%, 100% { opacity: 0.4; }
+  50%      { opacity: 0.7; }
+}
+
+/* Scanning line (horizontal sweep) */
+@keyframes scan-line {
+  0%, 100% { transform: translateX(-100%); opacity: 0; }
+  50%      { transform: translateX(100%); opacity: 0.8; }
+}
+
+.scan-line {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklch, var(--color-fd-primary) 30%, transparent),
+    transparent
+  );
+  animation: scan-line 6s ease-in-out infinite;
+  mix-blend-mode: plus-lighter;
+}
+
+/* Shimmer on bordered buttons (subtle traveling highlight) */
+@keyframes border-shimmer {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+.border-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 40%,
+    color-mix(in oklch, var(--color-fd-primary) 30%, transparent) 50%,
+    transparent 60%
+  );
+  background-size: 200% 100%;
+  animation: border-shimmer 3s linear infinite;
+}
+
+/* Blinking terminal cursor */
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.cursor-blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* Tilt card 3D perspective (applied via JS) */
+.tilt-3d {
+  transform-style: preserve-3d;
+  transition: transform 250ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform;
+}
+.tilt-3d-inner {
+  transform: translateZ(40px);
+  transition: transform 250ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Reveal on scroll — initial state, final state set via `.in-view` */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 700ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 700ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.reveal.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .marquee,
+  .text-brand-gradient,
+  .grid-animated,
+  .scan-line,
+  .border-shimmer,
+  .cursor-blink {
+    animation: none !important;
+  }
 }
 
 /* ─────────────── Code block polish ─────────────── */
