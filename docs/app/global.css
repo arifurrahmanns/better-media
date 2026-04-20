@@ -4,11 +4,35 @@
 
 @source '../node_modules/fumadocs-ui/dist/**/*.js';
 
+/* ─────────────── Brand — orange primary ─────────────── */
+/* Override Fumadocs' neutral preset. Fumadocs & Tailwind utilities that
+   reference `--color-fd-primary` automatically pick this up — TOC active
+   indicator, buttons, link accents, ring outlines, etc. */
+
+:root {
+  /* orange-600 — solid contrast on light backgrounds */
+  --color-fd-primary: oklch(0.646 0.222 41.116);
+  --color-fd-primary-foreground: oklch(0.985 0 0);
+  --color-fd-ring: oklch(0.646 0.222 41.116);
+}
+
+.dark {
+  /* orange-400 — bright but readable on dark backgrounds */
+  --color-fd-primary: oklch(0.75 0.183 55.934);
+  --color-fd-primary-foreground: oklch(0.145 0 0);
+  --color-fd-ring: oklch(0.75 0.183 55.934);
+}
+
 /* ─────────────── Design tokens ─────────────── */
 
 :root {
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  /* Brand aurora palette — warm sunrise (orange → amber → rose) */
+  --brand-aurora-a: oklch(0.72 0.22 50);   /* orange */
+  --brand-aurora-b: oklch(0.75 0.22 25);   /* warm rose */
+  --brand-aurora-c: oklch(0.82 0.18 80);   /* amber */
 }
 
 html {
@@ -52,14 +76,22 @@ kbd {
 .aurora::before {
   top: -20%;
   left: -10%;
-  background: radial-gradient(circle, oklch(0.68 0.23 265 / 0.9), transparent 70%);
+  background: radial-gradient(
+    circle,
+    color-mix(in oklch, var(--brand-aurora-a) 90%, transparent),
+    transparent 70%
+  );
   animation: aurora-a 22s ease-in-out infinite;
 }
 
 .aurora::after {
   top: -10%;
   right: -15%;
-  background: radial-gradient(circle, oklch(0.72 0.2 320 / 0.85), transparent 70%);
+  background: radial-gradient(
+    circle,
+    color-mix(in oklch, var(--brand-aurora-b) 85%, transparent),
+    transparent 70%
+  );
   animation: aurora-b 26s ease-in-out infinite;
   animation-delay: -10s;
 }
@@ -71,7 +103,11 @@ kbd {
   width: 40%;
   height: 70%;
   border-radius: 9999px;
-  background: radial-gradient(circle, oklch(0.74 0.18 195 / 0.8), transparent 70%);
+  background: radial-gradient(
+    circle,
+    color-mix(in oklch, var(--brand-aurora-c) 80%, transparent),
+    transparent 70%
+  );
   filter: blur(90px);
   opacity: 0.55;
   mix-blend-mode: screen;
@@ -148,10 +184,10 @@ kbd {
   padding: 1px;
   background: linear-gradient(
     135deg,
-    oklch(0.68 0.23 265 / 0.4),
+    color-mix(in oklch, var(--brand-aurora-a) 40%, transparent),
     transparent 30%,
     transparent 70%,
-    oklch(0.72 0.2 320 / 0.4)
+    color-mix(in oklch, var(--brand-aurora-b) 40%, transparent)
   );
   -webkit-mask:
     linear-gradient(#fff 0 0) content-box,
@@ -212,4 +248,87 @@ kbd {
     var(--color-fd-card)
   );
   backdrop-filter: blur(8px);
+}
+
+/* ─────────────── TOC (clerk-style curved tree) ─────────────── */
+/* Fumadocs ships the Clerk-style TOC (tableOfContent.style: 'clerk') which
+   already draws a left rail + rounded indicator. These tweaks smooth the
+   transitions, soften the rail, and make the active-item curve read cleaner
+   so it matches the reference screenshot. */
+
+#nd-toc {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+#nd-toc a {
+  position: relative;
+  display: block;
+  padding: 0.3rem 0.75rem;
+  color: color-mix(in oklch, var(--color-fd-muted-foreground) 92%, transparent);
+  transition:
+    color 180ms ease,
+    background-color 180ms ease;
+  border-radius: 0.375rem;
+}
+
+#nd-toc a:hover {
+  color: var(--color-fd-foreground);
+  background-color: color-mix(in oklch, var(--color-fd-foreground) 4%, transparent);
+}
+
+/* Smooth the active indicator bar that the clerk TOC draws on the left */
+#nd-toc [data-active='true'] {
+  color: var(--color-fd-foreground) !important;
+  font-weight: 500;
+}
+
+/* The clerk TOC uses an animated SVG marker; give it a subtle rounded end */
+#nd-toc svg {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Nested items get the curved branch connector */
+#nd-toc ul ul {
+  position: relative;
+  margin-left: 0.75rem;
+  padding-left: 0.75rem;
+  border-left: 1px solid color-mix(in oklch, var(--color-fd-border) 80%, transparent);
+}
+
+/* Optional: apply the same curved-line vibe to the left sidebar sub-items. */
+#nd-sidebar [data-level='2'],
+#nd-sidebar [data-level='3'],
+#nd-sidebar [data-level='4'] {
+  position: relative;
+}
+
+#nd-sidebar ul ul {
+  position: relative;
+  border-left: 1px solid color-mix(in oklch, var(--color-fd-border) 80%, transparent);
+  margin-left: 0.75rem;
+  padding-left: 0.25rem;
+}
+
+#nd-sidebar ul ul li {
+  position: relative;
+  padding-left: 0.75rem;
+}
+
+#nd-sidebar ul ul li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0.625rem;
+  height: 0.9rem;
+  border-left: 1px solid color-mix(in oklch, var(--color-fd-border) 80%, transparent);
+  border-bottom: 1px solid color-mix(in oklch, var(--color-fd-border) 80%, transparent);
+  border-bottom-left-radius: 0.5rem;
+  pointer-events: none;
+}
+
+#nd-sidebar ul ul li > a {
+  padding-left: 0.5rem;
 }

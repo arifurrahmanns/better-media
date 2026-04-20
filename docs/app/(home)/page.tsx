@@ -1,5 +1,12 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
+import {
+  ExpressIcon,
+  FastifyIcon,
+  HonoIcon,
+  NestJSIcon,
+  NextJSIcon,
+} from './icons'
 
 export default function HomePage() {
   return (
@@ -33,8 +40,8 @@ function Hero() {
           className="fade-up inline-flex items-center gap-2 rounded-full border border-fd-border bg-fd-card/50 backdrop-blur px-4 py-1.5 text-xs font-medium hover:border-fd-foreground/20 transition-colors"
         >
           <span className="relative flex h-1.5 w-1.5">
-            <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
-            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            <span className="absolute inline-flex h-full w-full rounded-full bg-fd-primary opacity-75 animate-ping" />
+            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-fd-primary" />
           </span>
           <span>v0.2 — Direct-to-storage uploads are live</span>
           <ArrowRight className="h-3 w-3 opacity-60" />
@@ -364,21 +371,24 @@ function FrameworkGrid() {
 
         <div className="mt-14 grid grid-cols-2 md:grid-cols-5 gap-3">
           {[
-            { name: 'Express', href: '/docs/frameworks#express' },
-            { name: 'Hono', href: '/docs/frameworks#hono' },
-            { name: 'Fastify', href: '/docs/frameworks#fastify' },
-            { name: 'NestJS', href: '/docs/frameworks#nestjs' },
-            { name: 'Next.js', href: '/docs/frameworks#nextjs' },
-          ].map((f) => (
-            <Link
-              key={f.name}
-              href={f.href}
-              className="group flex flex-col items-center justify-center gap-2 rounded-xl border border-fd-border bg-fd-card/50 backdrop-blur p-6 transition-all hover:border-fd-foreground/20 hover:-translate-y-0.5"
-            >
-              <span className="text-sm font-medium tracking-tight">{f.name}</span>
-              <ArrowRight className="h-3.5 w-3.5 text-fd-muted-foreground transition-transform group-hover:translate-x-0.5" />
-            </Link>
-          ))}
+            { name: 'Express', href: '/docs/frameworks#express', Icon: ExpressIcon },
+            { name: 'Hono', href: '/docs/frameworks#hono', Icon: HonoIcon },
+            { name: 'Fastify', href: '/docs/frameworks#fastify', Icon: FastifyIcon },
+            { name: 'NestJS', href: '/docs/frameworks#nestjs', Icon: NestJSIcon },
+            { name: 'Next.js', href: '/docs/frameworks#nextjs', Icon: NextJSIcon },
+          ].map((f) => {
+            const { Icon } = f
+            return (
+              <Link
+                key={f.name}
+                href={f.href}
+                className="group flex flex-col items-center justify-center gap-3 rounded-xl border border-fd-border bg-fd-card/50 backdrop-blur px-6 py-7 transition-all hover:border-fd-foreground/20 hover:-translate-y-0.5"
+              >
+                <Icon className="h-8 w-8 text-fd-muted-foreground transition-colors group-hover:text-fd-foreground" />
+                <span className="text-sm font-medium tracking-tight">{f.name}</span>
+              </Link>
+            )
+          })}
         </div>
       </div>
     </section>
