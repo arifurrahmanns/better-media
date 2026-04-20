@@ -133,5 +133,15 @@ function resolveConnection(input: ConnectionOptions | string): ConnectionOptions
   if (typeof input !== 'string') return input
   const ioredis: any = requireShim('ioredis')
   const Redis = ioredis.default ?? ioredis.Redis ?? ioredis
-  return new Redis(input)
+  // BullMQ workers block on Redis (BRPOPLPUSH etc.) and require
+  // `maxRetriesPerRequest: null` + `enableReadyCheck: false` on any
+  // pre-built IORedis instance. When the user hands us a URL string we
+  // build the instance ourselves, so we apply those settings here. When
+  // the user hands us RedisOptions (plain object), BullMQ creates the
+  // connection internally and applies its own worker-specific overrides,
+  // so we return the options as-is.
+  return new Redis(input, {
+    maxRetriesPerRequest: null,
+    enableReadyCheck: false,
+  })
 }

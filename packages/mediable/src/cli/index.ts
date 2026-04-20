@@ -3,7 +3,6 @@ import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, relative, resolve } from 'node:path'
 import type prompts from 'prompts'
-import { sqlMigrationTemplate } from './templates.js'
 
 declare const __filename: string | undefined
 const requireShim = createRequire(
@@ -107,21 +106,7 @@ async function init(argv: string[]): Promise<void> {
   mkdirSync(dirname(absPath), { recursive: true })
   writeFileSync(absPath, renderConfig(answers))
 
-  const written: string[] = [absPath]
-
-  // Emit a reference SQL migration file for Postgres / MySQL — the adapter
-  // auto-applies on first use, but having the SQL on disk is handy if the
-  // user later wants to run it through their own migration tool.
-  if (answers.db === 'postgres' || answers.db === 'mysql') {
-    const sqlPath = resolve(process.cwd(), 'migrations/0001_create_media.sql')
-    if (!existsSync(sqlPath)) {
-      mkdirSync(dirname(sqlPath), { recursive: true })
-      writeFileSync(sqlPath, sqlMigrationTemplate(answers.db))
-      written.push(sqlPath)
-    }
-  }
-
-  for (const p of written) console.log(`  wrote ${relative(process.cwd(), p)}`)
+  console.log(`  wrote ${relative(process.cwd(), absPath)}`)
   printFollowUp(answers)
 }
 
@@ -441,6 +426,10 @@ async function migrate(argv: string[]): Promise<void> {
   try {
     await (instance as any).migrate()
     console.log(`  migration applied successfully.\n`)
+    // The loaded config may hold open DB / Redis / queue connections that
+    // keep the event loop alive. Migrate is a one-shot command, so exit
+    // cleanly rather than hanging waiting for the user's connections.
+    process.exit(0)
   } catch (err) {
     console.error(`\n  migration failed:`, (err as Error).message, '\n')
     process.exit(1)
